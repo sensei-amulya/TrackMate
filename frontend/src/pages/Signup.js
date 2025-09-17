@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import axios from "axios";
-
+import { useNavigate } from "react-router-dom";
 const Signup = () => {
   const [form, setForm] = useState({ username: "", email: "", password: "" });
   const [message, setMessage] = useState("");
+  const navigate = useNavigate();
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -15,6 +16,7 @@ const Signup = () => {
       const res = await axios.post("http://localhost:5000/signup", form, {
         withCredentials: true,
       });
+      navigate("/login", { replace: true });
       setMessage(res.data.message || "Signup successful!");
     } catch (err) {
       setMessage(err.response?.data?.message || "Signup failed");

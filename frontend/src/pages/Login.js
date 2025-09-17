@@ -127,7 +127,7 @@ const Login = () => {
       </div>
 
       {/* Main content */}
-      <div className="relative z-10 w-full max-w-md mx-auto px-6 py-12">
+      <div className="relative z-10 w-full max-w-md mx-auto px-6">
         {/* Logo/Brand section */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center space-x-3 mb-4">

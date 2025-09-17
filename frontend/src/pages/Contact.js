@@ -13,7 +13,7 @@ const Contact = () => {
       <p className="mb-6 text-white">
         Have questions or suggestions? We’d love to hear from you.
       </p>
-      <form className="space-y-4">
+      <form className="space-y-4 px-4 pb-8">
         <input
           type="text"
           placeholder="Your Name"

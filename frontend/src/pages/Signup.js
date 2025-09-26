@@ -13,10 +13,14 @@ const Signup = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post("http://localhost:5000/signup", form, {
-        withCredentials: true,
-      });
-      navigate("/login", { replace: true });
+      const res = await axios.post(
+        "http://localhost:5000/api/users/signup",
+        form,
+        {
+          withCredentials: true,
+        }
+      );
+      navigate("/api/users/login", { replace: true });
       setMessage(res.data.message || "Signup successful!");
     } catch (err) {
       setMessage(err.response?.data?.message || "Signup failed");

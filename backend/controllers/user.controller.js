@@ -13,19 +13,32 @@ const generateToken = (id) => {
 const loginUser = async (req, res) => {
   const { email, password } = req.body;
   console.log("Login attempt:", email);
+
   if (!email) {
     throw new ApiError(400, "Email is required");
   }
+
+  if (!password) {
+    throw new ApiError(401, "Password is required");
+  }
+
   const user = await User.findOne({ email });
 
   if (!user) {
     throw new ApiError(404, "User does not exist");
   }
-  if (!password) {
-    throw new ApiError(401, "Invalid user credentials");
-  }
 
   if (user && (await user.matchPassword(password))) {
+    const token = generateToken(user._id);
+
+    // Set cookie with the token
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
+
     res.json(
       new ApiResponse(
         200,
@@ -33,7 +46,7 @@ const loginUser = async (req, res) => {
           _id: user._id,
           username: user.username,
           email: user.email,
-          token: generateToken(user._id),
+          // Don't send token in response body since it's in cookie
         },
         "Login successful"
       )
@@ -57,6 +70,16 @@ const registerUser = async (req, res) => {
 
   const user = await User.create({ username, email, password });
 
+  const token = generateToken(user._id);
+
+  // Set cookie for registration too
+  res.cookie("token", token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+  });
+
   return res.status(201).json(
     new ApiResponse(
       200,
@@ -64,7 +87,7 @@ const registerUser = async (req, res) => {
         _id: user._id,
         username: user.username,
         email: user.email,
-        token: generateToken(user._id),
+        // Don't send token in response body since it's in cookie
       },
       "User registered successfully"
     )

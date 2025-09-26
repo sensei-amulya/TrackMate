@@ -6,32 +6,43 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import authRoute from "./routes/authRoute.js";
 
-const app = express();
-app.use(express.json());
-
+// Load environment variables first
 dotenv.config();
 
-connectDB()
-  .then(() => {
-    app.listen(process.env.PORT, () =>
-      console.log(`Server Running at Port ${process.env.PORT}`)
-    );
-  })
-  .catch((error) => {
-    console.error("Failed to connect to the database:", error);
-  });
+const app = express();
 
-app.use(cors({ origin: "http://localhost:3000", credentials: true }));
+// Middleware setup (order is important!)
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    credentials: true,
+  })
+);
+app.use(express.json());
 app.use(cookieParser());
 
-//
+// Routes
 app.use("/api/users", userRoutes);
-
 app.use("/api/auth", authRoute);
 
+// Health check routes
 app.get("/", (req, res) => {
   res.json("Progress Tracker API is running...");
 });
+
 app.get("/health", (req, res) => {
   res.status(200).json({ status: "ok", message: "Server is healthy!" });
 });
+
+// Connect to database and start server
+connectDB()
+  .then(() => {
+    const PORT = process.env.PORT || 5000;
+    app.listen(PORT, () => {
+      console.log(`Server Running at Port ${PORT}`);
+    });
+  })
+  .catch((error) => {
+    console.error("Failed to connect to the database:", error);
+    process.exit(1);
+  });

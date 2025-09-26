@@ -1,79 +1,41 @@
-import React, { useContext, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useContext } from "react";
 import { AuthContext } from "../context/AuthContext";
+import { useNavigate } from "react-router-dom";
+
 const Login = () => {
-  const [form, setForm] = useState({ email: "", password: "" });
+  const [formData, setFormData] = useState({
+    email: "",
+    password: "",
+  });
   const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+
+  const { handleLogin } = useContext(AuthContext);
   const navigate = useNavigate();
-  const { setUser } = useContext(AuthContext);
+
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+    setFormData({
+      ...formData,
+      [e.target.name]: e.target.value,
+    });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setMessage("");
+    setError("");
 
-    console.log("Attempting login with:", { email: form.email }); // Don't log password
+    const result = await handleLogin(formData);
 
-    try {
-      const response = await fetch("http://localhost:5000/api/users/login", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        credentials: "include", // equivalent to withCredentials: true
-        body: JSON.stringify(form),
-      });
-
-      const data = await response.json();
-      console.log("Login response:", data);
-
-      if (response.ok) {
-        setMessage(data.message || "Login successful!");
-        setUser(data.username); // Assuming the response contains the username
-        navigate("/dashboard", { replace: true });
-        // Handle successful login (e.g., redirect, update context, etc.)
-      } else {
-        setMessage(data.message || `Error: ${response.status}`);
-      }
-    } catch (err) {
-      console.error("Login error:", err);
-
-      if (err.name === "TypeError" && err.message.includes("fetch")) {
-        setMessage(
-          "Network error. Please check if the server is running on port 5000."
-        );
-      } else {
-        setMessage("Login failed. Please try again.");
-      }
-    } finally {
-      setLoading(false);
+    if (result.success) {
+      console.log("Login successful:", result.data);
+      navigate("/dashboard", { replace: true });
+    } else {
+      setError(result.error);
     }
-  };
 
-  const testConnection = async () => {
-    try {
-      const response = await fetch("http://localhost:5000/health", {
-        method: "GET",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setMessage("✅ Server connection successful!");
-        console.log("Health check:", data);
-      } else {
-        setMessage("❌ Server responded but with error status");
-      }
-    } catch (err) {
-      setMessage("❌ Cannot connect to server.");
-      console.error("Connection test failed:", err);
-    }
+    setLoading(false);
   };
 
   return (
@@ -127,7 +89,7 @@ const Login = () => {
       </div>
 
       {/* Main content */}
-      <div className="relative z-10 w-full max-w-md mx-auto px-6">
+      <div className="relative z-10 w-full max-w-md mx-auto px-4 py-4">
         {/* Logo/Brand section */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center space-x-3 mb-4">
@@ -146,14 +108,7 @@ const Login = () => {
             Sign In
           </h2>
 
-          <button
-            onClick={testConnection}
-            className="w-full mb-6 bg-gray-600/50 backdrop-blur-sm text-white p-2 rounded-xl hover:bg-gray-600/70 text-sm border border-gray-500/30 transition-all duration-300"
-          >
-            Test Server Connection
-          </button>
-
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
               <label className="text-sm font-medium text-gray-200">
                 Email Address
@@ -162,7 +117,7 @@ const Login = () => {
                 type="email"
                 name="email"
                 placeholder="Email"
-                value={form.email}
+                value={formData.email}
                 onChange={handleChange}
                 className="w-full p-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white placeholder-gray-400 transition-all duration-300"
                 required
@@ -173,17 +128,17 @@ const Login = () => {
               <label className="text-sm font-medium text-gray-200">
                 Password
               </label>
-
               <input
                 type="password"
                 name="password"
                 placeholder="Password"
-                value={form.password}
+                value={formData.password}
                 onChange={handleChange}
                 className="w-full p-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white placeholder-gray-400 transition-all duration-300"
                 required
               />
             </div>
+
             <button
               type="submit"
               disabled={loading}

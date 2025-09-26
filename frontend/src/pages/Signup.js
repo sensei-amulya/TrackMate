@@ -1,10 +1,14 @@
-import React, { useState } from "react";
+import React, { useState, useContext } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { AuthContext } from "../context/AuthContext";
+
 const Signup = () => {
   const [form, setForm] = useState({ username: "", email: "", password: "" });
   const [message, setMessage] = useState("");
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+  const { setUser } = useContext(AuthContext);
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -12,18 +16,37 @@ const Signup = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setMessage("");
+
     try {
+      // Correct API endpoint is /register, not /signup
       const res = await axios.post(
-        "http://localhost:5000/api/users/signup",
+        "http://localhost:5000/api/users/register",
         form,
         {
           withCredentials: true,
         }
       );
-      navigate("/api/users/login", { replace: true });
+
+      console.log("Signup response:", res.data); // Debug log
+
+      // Set user in context since backend now sets cookie and returns user data
+      if (res.data && res.data.data) {
+        setUser(res.data.data);
+      }
+
       setMessage(res.data.message || "Signup successful!");
+
+      // Navigate to dashboard instead of login since user is now logged in
+      setTimeout(() => {
+        navigate("/dashboard", { replace: true });
+      }, 1000);
     } catch (err) {
+      console.error("Signup error:", err);
       setMessage(err.response?.data?.message || "Signup failed");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -86,7 +109,7 @@ const Signup = () => {
             <span className="text-2xl font-bold text-white">TrackMate</span>
           </div>
           <p className="text-gray-300 text-sm">
-            Welcome back! Please sign in to your account
+            Create your account and start tracking your progress
           </p>
         </div>
 
@@ -102,11 +125,12 @@ const Signup = () => {
               <input
                 type="text"
                 name="username"
-                placeholder="Username"
+                placeholder="Enter your username"
                 value={form.username}
                 onChange={handleChange}
                 className="w-full p-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white placeholder-gray-400 transition-all duration-300"
                 required
+                disabled={loading}
               />
             </div>
             <div className="space-y-2">
@@ -114,11 +138,12 @@ const Signup = () => {
               <input
                 type="email"
                 name="email"
-                placeholder="Email"
+                placeholder="Enter your email"
                 value={form.email}
                 onChange={handleChange}
                 className="w-full p-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white placeholder-gray-400 transition-all duration-300"
                 required
+                disabled={loading}
               />
             </div>
 
@@ -129,26 +154,43 @@ const Signup = () => {
               <input
                 type="password"
                 name="password"
-                placeholder="Password"
+                placeholder="Enter your password"
                 value={form.password}
                 onChange={handleChange}
                 className="w-full p-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white placeholder-gray-400 transition-all duration-300"
                 required
+                disabled={loading}
+                minLength="6"
               />
             </div>
+
             <button
               type="submit"
-              className="w-full bg-blue-600 text-white p-3 rounded-xl hover:bg-blue-700"
+              disabled={loading}
+              className="w-full bg-blue-600 text-white p-3 rounded-xl hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
             >
-              Sign Up
+              {loading ? "Creating Account..." : "Sign Up"}
             </button>
           </form>
+
           {message && (
-            <p className="text-center text-sm mt-4 text-red-500">{message}</p>
+            <div
+              className={`text-center text-sm mt-4 p-3 rounded-lg ${
+                message.includes("successful")
+                  ? "bg-green-500/20 text-green-300 border border-green-500/30"
+                  : "bg-red-500/20 text-red-300 border border-red-500/30"
+              }`}
+            >
+              {message}
+            </div>
           )}
+
           <p className="text-sm text-center mt-6 text-gray-300">
             Already have an account?{" "}
-            <a href="/login" className="text-blue-600 hover:underline">
+            <a
+              href="/login"
+              className="text-blue-400 hover:text-blue-300 hover:underline transition-colors"
+            >
               Login
             </a>
           </p>

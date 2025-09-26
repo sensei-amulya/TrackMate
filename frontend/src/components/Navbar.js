@@ -2,15 +2,16 @@ import React, { useContext, useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
 import { UserCircle } from "lucide-react";
-//import axios from "axios";
 
 const Navbar = () => {
   const { user, handleLogout } = useContext(AuthContext);
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef(null);
-  console.log("username", user);
-  // Close dropdown on outside click
 
+  console.log("Navbar user object:", user);
+  console.log("User keys:", user ? Object.keys(user) : "No user");
+
+  // Close dropdown on outside click
   useEffect(() => {
     const handleClickOutside = (e) => {
       if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
@@ -24,16 +25,13 @@ const Navbar = () => {
   const getDisplayName = (user) => {
     if (!user) return null;
 
-    // Try different possible property names
-    return user || "User";
+    // Try different possible property names in order of preference
+    return user.username || user.name || user.email?.split("@")[0] || "User";
   };
-  useEffect(() => {
-    console.log("Navbar user object:", user);
-    console.log("User keys:", user ? Object.keys(user) : "No user");
-    console.log("Display name:", getDisplayName(user));
-  }, [user]);
 
   const displayName = getDisplayName(user);
+
+  console.log("Display name:", displayName);
 
   return (
     <nav
@@ -59,17 +57,15 @@ const Navbar = () => {
         </Link>
       </div>
 
-      {/* Middle - Nav links */}
-
       {/* Right side - Profile Dropdown */}
       <div className="relative" ref={dropdownRef}>
         <button
           onClick={() => setOpen(!open)}
-          className="flex items-center focus:outline-none hover:bg-gray-50 rounded-lg p-2 transition"
+          className="flex items-center space-x-2 focus:outline-none hover:bg-gray-800 rounded-lg p-2 transition"
         >
           <UserCircle
             size={32}
-            className="text-gray-700 hover:text-blue-600 transition"
+            className="text-gray-300 hover:text-blue-400 transition"
           />
           {user && displayName && (
             <span className="font-medium text-white max-w-32 truncate">
@@ -77,41 +73,40 @@ const Navbar = () => {
             </span>
           )}
           {user && !displayName && (
-            <span className="font-medium text-gray-500 text-sm">Account</span>
+            <span className="font-medium text-gray-400 text-sm">Account</span>
           )}
         </button>
 
         {open && (
-          <div className="absolute right-0 mt-2 w-40 bg-gray-800 border border-gray-700 rounded-lg shadow-lg py-2 z-50">
+          <div className="absolute right-0 mt-2 w-48 bg-gray-800 border border-gray-700 rounded-lg shadow-lg py-2 z-50">
             {user ? (
               <>
-                {displayName && (
-                  <div className="px-4 py-2 border-b border-gray-100">
-                    <p className="font-medium text-white truncate mb-1 text-lg">
-                      {displayName}
+                <div className="px-4 py-2 border-b border-gray-700">
+                  <p className="font-medium text-white truncate mb-1">
+                    {displayName}
+                  </p>
+                  {user.email && (
+                    <p className="text-sm text-gray-400 truncate">
+                      {user.email}
                     </p>
-                    {user.email && (
-                      <p className="text-sm text-white truncate">
-                        {user.email}
-                      </p>
-                    )}
-                  </div>
-                )}
+                  )}
+                </div>
 
                 <Link
                   to="/dashboard"
                   onClick={() => setOpen(false)}
-                  className="block px-4 py-2 text-white hover:bg-blue-500 transition"
+                  className="block px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white transition"
                 >
                   Dashboard
                 </Link>
-                <div className="border-t border-gray-100 mt-1 pt-1">
+
+                <div className="border-t border-gray-700 mt-1 pt-1">
                   <button
                     onClick={() => {
                       handleLogout();
                       setOpen(false);
                     }}
-                    className="w-full text-left px-4 py-2 text-red-500 hover:bg-red-50 transition"
+                    className="w-full text-left px-4 py-2 text-red-400 hover:bg-red-900/20 hover:text-red-300 transition"
                   >
                     Logout
                   </button>
@@ -122,14 +117,14 @@ const Navbar = () => {
                 <Link
                   to="/login"
                   onClick={() => setOpen(false)}
-                  className="block px-4 py-2 text-white hover:bg-blue-500 transition "
+                  className="block px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white transition"
                 >
                   Login
                 </Link>
                 <Link
                   to="/signup"
                   onClick={() => setOpen(false)}
-                  className="block px-4 py-2 text-white hover:bg-blue-500 transition"
+                  className="block px-4 py-2 text-gray-300 hover:bg-gray-700 hover:text-white transition"
                 >
                   Signup
                 </Link>

@@ -52,9 +52,7 @@ const loginUser = async (req, res) => {
       )
     );
   } else {
-    res
-      .status(401)
-      .json(new ApiResponse(401, null, "Invalid email or password"));
+    res.json(new ApiError(401, null, "Invalid email or password"));
   }
 };
 
@@ -80,7 +78,7 @@ const registerUser = async (req, res) => {
     maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
   });
 
-  return res.status(201).json(
+  return res.json(
     new ApiResponse(
       200,
       {
@@ -96,7 +94,7 @@ const registerUser = async (req, res) => {
 
 const logoutUser = (req, res) => {
   res.clearCookie("token");
-  res.status(200).json(new ApiResponse(200, null, "Logout successful"));
+  res.json(new ApiResponse(200, null, "Logout successful"));
 };
 
 export { loginUser, registerUser, logoutUser };

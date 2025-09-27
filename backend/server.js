@@ -5,6 +5,7 @@ import userRoutes from "./routes/user.routes.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import authRoute from "./routes/authRoute.js";
+import progressRoutes from "./routes/progress.routes.js";
 
 // Load environment variables first
 dotenv.config();
@@ -24,14 +25,10 @@ app.use(cookieParser());
 // Routes
 app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoute);
-
+app.use("/api", progressRoutes);
 // Health check routes
 app.get("/", (req, res) => {
   res.json("Progress Tracker API is running...");
-});
-
-app.get("/health", (req, res) => {
-  res.status(200).json({ status: "ok", message: "Server is healthy!" });
 });
 
 // Connect to database and start server

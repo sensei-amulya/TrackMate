@@ -1,20 +1,36 @@
 import mongoose from "mongoose";
 
-const progressSchema = new mongoose.Schema({
-  userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
-  day: { type: String, required: true }, // "Mon", "Tue", etc.
-
-  dsa: {
-    questions: { type: Number, default: 0 },
-    goal: { type: Number, default: 10 },
+const progressSchema = new mongoose.Schema(
+  {
+    userId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    day: {
+      type: String,
+      required: true,
+      // Format: YYYY-MM-DD
+    },
+    dsa: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
+    gym: {
+      type: Number,
+      default: 0,
+      min: 0,
+    },
   },
+  {
+    timestamps: true,
+  }
+);
 
-  gym: {
-    workout: { type: Number, default: 0 },
-    goal: { type: Number, default: 60 },
-  },
+// Create compound index to prevent duplicate entries for same user and day
+progressSchema.index({ userId: 1, day: 1 }, { unique: true });
 
-  createdAt: { type: Date, default: Date.now },
-});
+const Progress = mongoose.model("Progress", progressSchema);
 
-export default mongoose.model("Progress", progressSchema);
+export default Progress;

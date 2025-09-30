@@ -7,7 +7,6 @@ const Login = () => {
     email: "",
     password: "",
   });
-  const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -50,7 +49,6 @@ const Login = () => {
 
       {/* Background visual elements */}
       <div className="absolute inset-0 opacity-10">
-        {/* Pie Chart */}
         <div className="absolute top-20 left-10 w-32 h-32">
           <div className="relative w-full h-full">
             <div
@@ -63,7 +61,6 @@ const Login = () => {
           </div>
         </div>
 
-        {/* Bar Chart */}
         <div className="absolute top-1/3 right-16 flex items-end space-x-2 opacity-20">
           <div className="w-4 h-12 bg-blue-500 rounded-t"></div>
           <div className="w-4 h-20 bg-blue-500 rounded-t"></div>
@@ -71,11 +68,9 @@ const Login = () => {
           <div className="w-4 h-24 bg-blue-500 rounded-t"></div>
         </div>
 
-        {/* Progress circles */}
         <div className="absolute bottom-20 left-20 w-20 h-20 border-4 border-purple-500 rounded-full opacity-20"></div>
         <div className="absolute bottom-32 right-32 w-16 h-16 border-4 border-green-400 rounded-full opacity-15"></div>
 
-        {/* Line graph simulation */}
         <div className="absolute top-1/2 left-1/4 w-32 h-20 opacity-15">
           <svg viewBox="0 0 100 50" className="w-full h-full">
             <polyline
@@ -90,7 +85,6 @@ const Login = () => {
 
       {/* Main content */}
       <div className="relative z-10 w-full max-w-md mx-auto px-4 py-4">
-        {/* Logo/Brand section */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center space-x-3 mb-4">
             <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
@@ -116,7 +110,7 @@ const Login = () => {
               <input
                 type="email"
                 name="email"
-                placeholder="Email"
+                placeholder="Enter your email"
                 value={formData.email}
                 onChange={handleChange}
                 className="w-full p-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white placeholder-gray-400 transition-all duration-300"
@@ -131,7 +125,7 @@ const Login = () => {
               <input
                 type="password"
                 name="password"
-                placeholder="Password"
+                placeholder="Enter your password"
                 value={formData.password}
                 onChange={handleChange}
                 className="w-full p-4 bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-white placeholder-gray-400 transition-all duration-300"
@@ -139,13 +133,19 @@ const Login = () => {
               />
             </div>
 
+            {error && (
+              <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-3">
+                <p className="text-red-300 text-sm text-center">{error}</p>
+              </div>
+            )}
+
             <button
               type="submit"
               disabled={loading}
-              className={`w-full p-4 rounded-xl text-white font-semibold transition-all duration-300${
+              className={`w-full p-4 rounded-xl text-white font-semibold transition-all duration-300 ${
                 loading
                   ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-blue-600 hover:bg-blue-700"
+                  : "bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
               }`}
             >
               {loading ? (
@@ -159,21 +159,12 @@ const Login = () => {
             </button>
           </form>
 
-          {message && (
-            <p
-              className={`text-center text-sm mt-4 ${
-                message.includes("successful") || message.includes("✅")
-                  ? "text-green-600"
-                  : "text-red-500"
-              }`}
-            >
-              {message}
-            </p>
-          )}
-
           <p className="text-sm text-center mt-6 text-gray-300">
             Don't have an account?{" "}
-            <a href="/signup" className="text-blue-600 hover:underline">
+            <a
+              href="/signup"
+              className="text-blue-400 hover:text-blue-300 hover:underline"
+            >
               Create Account
             </a>
           </p>

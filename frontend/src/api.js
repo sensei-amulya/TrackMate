@@ -7,6 +7,7 @@ const API = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
+  withCredentials: true,
 });
 
 // Simple in-memory cache for GET requests
@@ -17,10 +18,6 @@ const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 API.interceptors.request.use(
   (config) => {
     // Attach token if available
-    const token = localStorage.getItem("token");
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
-    }
 
     // Handle GET caching
     if (config.method === "get") {
@@ -64,7 +61,6 @@ API.interceptors.response.use(
       const status = error.response.status;
       switch (status) {
         case 401:
-          localStorage.removeItem("token");
           window.location.href = "/login";
           break;
         case 403:

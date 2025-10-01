@@ -28,8 +28,8 @@ const Dashboard = () => {
   const [error, setError] = useState("");
   const { user } = useContext(AuthContext);
 
-  console.log("📊 Dashboard - User ID:", user?._id);
-  console.log("📊 Dashboard - Progress Data Length:", progressData.length);
+  console.log("📊 Dashboard - User:", user);
+  console.log("📊 Dashboard - Progress Data:", progressData);
 
   // Update time every minute
   useEffect(() => {
@@ -37,13 +37,12 @@ const Dashboard = () => {
     return () => clearInterval(timer);
   }, []);
 
-  // Fetch progress data only once when component mounts or user changes
+  // Fetch progress data
   useEffect(() => {
-    console.log("📡 Dashboard - Fetching progress data...");
-
     const fetchData = async () => {
+      // CRITICAL FIX: Check if user exists before making API call
       if (!user?._id) {
-        console.log("❌ No user ID found");
+        console.log("⚠️ No user ID found, skipping fetch");
         setLoading(false);
         setError("Please log in to view your progress");
         return;
@@ -51,19 +50,21 @@ const Dashboard = () => {
 
       try {
         setLoading(true);
-        console.log("🚀 Making API request for user:", user._id);
+        console.log("🚀 Fetching progress for user:", user._id);
 
         const response = await API.get(`/progress/${user._id}`);
         console.log("✅ API Response:", response.data);
 
-        if (response.data?.success) {
-          setProgressData(response.data.data || []);
+        if (response.data?.success && Array.isArray(response.data.data)) {
+          setProgressData(response.data.data);
           setError("");
         } else {
-          setError(response.data?.message || "Failed to fetch progress data");
+          setProgressData([]);
+          setError(response.data?.message || "No progress data found");
         }
       } catch (err) {
         console.error("❌ Error fetching progress:", err);
+        setProgressData([]);
         setError(err.response?.data?.message || "Failed to load progress data");
       } finally {
         setLoading(false);
@@ -71,9 +72,9 @@ const Dashboard = () => {
     };
 
     fetchData();
-  }, [user?._id]); // Only re-run when user ID changes
+  }, [user?._id]);
 
-  // Transform data for charts (simple version)
+  // CRITICAL FIX: Safely transform data for charts
   const getChartData = () => {
     const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     const today = new Date();
@@ -85,11 +86,12 @@ const Dashboard = () => {
       const dayName = daysOfWeek[date.getDay()];
       const dateString = date.toISOString().split("T")[0];
 
+      // CRITICAL FIX: Safely find progress with proper date matching
       const dayProgress = progressData.find((progress) => {
-        const progressDate = new Date(progress.createdAt)
-          .toISOString()
-          .split("T")[0];
-        return progressDate === dateString;
+        if (!progress || !progress.day) return false;
+
+        // Match by 'day' field (as stored in DB)
+        return progress.day === dateString;
       });
 
       chartData.push({
@@ -104,32 +106,48 @@ const Dashboard = () => {
     return chartData;
   };
 
-  const chartData = getChartData();
+  // CRITICAL FIX: Wrap in try-catch to prevent crashes
+  let chartData = [];
+  try {
+    chartData = getChartData();
+  } catch (err) {
+    console.error("❌ Error generating chart data:", err);
+    chartData = Array(7).fill({
+      day: "",
+      questions: 0,
+      workout: 0,
+      dsaGoal: 10,
+      gymGoal: 60,
+    });
+  }
 
-  // Calculate stats
+  // Calculate stats safely
   const totalDsaQuestions = chartData.reduce(
-    (sum, day) => sum + day.questions,
+    (sum, day) => sum + (day?.questions || 0),
     0
   );
-  const totalGymMinutes = chartData.reduce((sum, day) => sum + day.workout, 0);
+  const totalGymMinutes = chartData.reduce(
+    (sum, day) => sum + (day?.workout || 0),
+    0
+  );
   const dsaGoalAchieved = chartData.filter(
-    (day) => day.questions >= day.dsaGoal
+    (day) => (day?.questions || 0) >= (day?.dsaGoal || 10)
   ).length;
   const gymGoalAchieved = chartData.filter(
-    (day) => day.workout >= day.gymGoal
+    (day) => (day?.workout || 0) >= (day?.gymGoal || 60)
   ).length;
 
   // Split data for charts
   const dsaData = chartData.map((day) => ({
-    day: day.day,
-    questions: day.questions,
-    goal: day.dsaGoal,
+    day: day?.day || "",
+    questions: day?.questions || 0,
+    goal: day?.dsaGoal || 10,
   }));
 
   const gymData = chartData.map((day) => ({
-    day: day.day,
-    workout: day.workout,
-    goal: day.gymGoal,
+    day: day?.day || "",
+    workout: day?.workout || 0,
+    goal: day?.gymGoal || 60,
   }));
 
   // Custom tooltip
@@ -158,6 +176,25 @@ const Dashboard = () => {
         <div className="text-center">
           <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
           <p className="text-white">Loading your progress...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // CRITICAL FIX: Check if user exists before rendering
+  if (!user) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-white text-xl mb-4">
+            Please log in to view your dashboard
+          </p>
+          <Link
+            to="/login"
+            className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-lg inline-block"
+          >
+            Go to Login
+          </Link>
         </div>
       </div>
     );
@@ -370,7 +407,7 @@ const Dashboard = () => {
 
         {/* Empty state */}
         {progressData.length === 0 && !loading && !error && (
-          <div className="text-center py-12">
+          <div className="text-center py-12 mt-8">
             <div className="w-24 h-24 bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">
               <TrendingUp className="w-12 h-12 text-gray-400" />
             </div>

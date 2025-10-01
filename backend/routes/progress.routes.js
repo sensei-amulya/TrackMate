@@ -9,9 +9,9 @@ import { protect } from "../middleware/authMiddleware.js";
 const router = express.Router();
 
 // POST -> Add progress
-router.post("/progress", protect, addProgress);
+router.post("/api/progress", protect, addProgress);
 
 // GET -> Get last 7 days progress for a user
-router.get("/progress/:userId", protect, getUserProgress);
+router.get("/api/progress/:userId", protect, getUserProgress);
 
 export default router;

@@ -25,7 +25,6 @@ const AuthDebug = () => {
           <div>ID: {user._id || "N/A"}</div>
           <div>Username: {user.username || "N/A"}</div>
           <div>Email: {user.email || "N/A"}</div>
-          <div>Name: {user.name || "N/A"}</div>
         </div>
       )}
       <div className="mt-2 pt-2 border-t border-gray-600">

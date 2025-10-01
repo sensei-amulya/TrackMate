@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Create axios instance with optimized defaults
 const API = axios.create({
-  baseURL: "http://localhost:5000/api",
+  baseURL: "http://localhost:5000/api/progress", // VERIFIED: Endpoint is progress
   timeout: 10000, // 10 second timeout
   headers: {
     "Content-Type": "application/json",
@@ -10,52 +10,35 @@ const API = axios.create({
   withCredentials: true,
 });
 
-// Simple in-memory cache for GET requests
-const cache = new Map();
-const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+// REMOVED: Caching variables (cache, CACHE_DURATION)
 
-// Request interceptor for auth + cache lookup
+// Request interceptor for auth only
 API.interceptors.request.use(
   (config) => {
-    // Attach token if available
+    // 1. Attach token here if necessary (you had this commented out)
+    // const token = localStorage.getItem('token');
+    // if (token) {
+    //     config.headers.Authorization = `Bearer ${token}`;
+    // }
 
-    // Handle GET caching
-    if (config.method === "get") {
-      config.cacheKey = `${config.url}_${JSON.stringify(config.params || {})}`;
-      const cachedData = cache.get(config.cacheKey);
-
-      if (cachedData && Date.now() - cachedData.timestamp < CACHE_DURATION) {
-        // Return cached response-like object
-        return Promise.resolve({
-          data: cachedData.data,
-          config,
-          cached: true,
-        });
-      }
-    }
-
+    // 2. Removed all Caching logic from the request interceptor
     return config;
   },
   (error) => Promise.reject(error)
 );
 
-// Response interceptor for caching + error handling
+// Response interceptor for error handling only
 API.interceptors.response.use(
   (response) => {
-    // Cache GET responses
-    if (response.config.method === "get" && response.config.cacheKey) {
-      cache.set(response.config.cacheKey, {
-        data: response.data,
-        timestamp: Date.now(),
-      });
-    }
+    // Removed all Caching logic from the response interceptor
     return response;
   },
   (error) => {
-    // Handle network / timeout / server errors
+    // Handle network / timeout / server errors (Logic remains the same)
     if (error.code === "ECONNABORTED") {
       error.message = "Request timed out. Please try again.";
     } else if (!error.response) {
+      // THIS IS WHERE YOUR "Network error. Please check your connection." COMES FROM
       error.message = "Network error. Please check your connection.";
     } else {
       const status = error.response.status;
@@ -81,26 +64,16 @@ API.interceptors.response.use(
   }
 );
 
-// Utility: Clear cache function
+// Utility functions are now useless without the cache map, but are kept for structure
 export const clearCache = (pattern) => {
-  if (pattern) {
-    for (const [key] of cache.entries()) {
-      if (key.includes(pattern)) {
-        cache.delete(key);
-      }
-    }
-  } else {
-    cache.clear();
-  }
+  console.warn(
+    "clearCache called, but caching is currently disabled in API.js."
+  );
 };
 
-// Utility: Preload progress data into cache
 export const preloadProgressData = async (userId) => {
-  try {
-    await API.get(`/progress/${userId}`);
-  } catch (error) {
-    console.warn("Failed to preload progress data:", error.message);
-  }
+  console.log(`Preloading skipped for ${userId} to avoid race conditions.`);
+  return;
 };
 
 export default API;

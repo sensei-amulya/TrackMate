@@ -52,7 +52,7 @@ const AddProgress = () => {
         gym: parseInt(formData.gym) || 0,
       };
 
-      const response = await API.post("/progress", submitData);
+      const response = await API.post("/", submitData);
 
       if (response.data.success) {
         setMessage("Progress added successfully! 🎉");
@@ -67,7 +67,7 @@ const AddProgress = () => {
         // Redirect to dashboard after 2 seconds
         setTimeout(() => {
           navigate("/dashboard");
-        }, 2000);
+        }, 1000);
       } else {
         setError(response.data.message || "Failed to add progress");
       }

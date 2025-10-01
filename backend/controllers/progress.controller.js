@@ -81,11 +81,7 @@ export const getUserProgress = async (req, res) => {
       .limit(7);
 
     return res.json(
-      new ApiResponse(
-        200,
-        { success: true, data: progress },
-        "Progress retrieved successfully"
-      )
+      new ApiResponse(200, progress, "Progress retrieved successfully")
     );
   } catch (error) {
     console.error("Error in getUserProgress:", error);

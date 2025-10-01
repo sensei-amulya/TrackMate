@@ -28,8 +28,9 @@ const Dashboard = () => {
   const [error, setError] = useState("");
   const { user } = useContext(AuthContext);
 
-  console.log("📊 Dashboard - User:", user);
-  console.log("📊 Dashboard - Progress Data:", progressData);
+  // Console logs for current state
+  // console.log("📊 Dashboard - User:", user);
+  // console.log("📊 Dashboard - Progress Data:", progressData);
 
   // Update time every minute
   useEffect(() => {
@@ -37,44 +38,89 @@ const Dashboard = () => {
     return () => clearInterval(timer);
   }, []);
 
-  // Fetch progress data
+  // Fetch progress data (Refactored for robust data parsing)
   useEffect(() => {
     const fetchData = async () => {
-      // CRITICAL FIX: Check if user exists before making API call
       if (!user?._id) {
-        console.log("⚠️ No user ID found, skipping fetch");
+        console.warn("⚠️ No user ID found, skipping fetch.");
         setLoading(false);
-        setError("Please log in to view your progress");
+        setError("Please log in to view your progress.");
         return;
       }
+
+      // In Dashboard.js, inside the 'Fetch progress data' useEffect
+
+      // ... (inside fetchData = async () => { ... } )
 
       try {
         setLoading(true);
         console.log("🚀 Fetching progress for user:", user._id);
 
-        const response = await API.get(`/progress/${user._id}`);
-        console.log("✅ API Response:", response.data);
+        // Assuming API.get() is using Axios and correctly handles HTTP errors
+        const response = await API.get(`/${user._id}`);
+        const apiResponseData = response.data;
+        console.log("✅ API Response Data Structure:", apiResponseData);
 
-        if (response.data?.success && Array.isArray(response.data.data)) {
-          setProgressData(response.data.data);
+        let fetchedProgress = [];
+
+        // 1. Check for expected data array structure
+        if (Array.isArray(apiResponseData)) {
+          fetchedProgress = apiResponseData;
+        } else if (
+          apiResponseData?.success &&
+          Array.isArray(apiResponseData.data)
+        ) {
+          fetchedProgress = apiResponseData.data;
+        } else {
+          // 2. If the response structure is unexpected, throw a **specific** error,
+          //    but do NOT rely on a "success message" to determine failure.
+          // The error "Progress retrieved successfully" is likely coming from
+          // an API layer that returns an object like { message: "Progress retrieved successfully" }
+          // when the 'data' field is empty or missing.
+
+          // CRITICAL FIX: Only throw an error if we genuinely can't find the array data.
+          if (!apiResponseData.data && !Array.isArray(apiResponseData)) {
+            throw new Error(
+              apiResponseData?.message ||
+                "Received data in an unexpected format."
+            );
+          }
+        }
+
+        if (fetchedProgress.length > 0) {
+          console.log(
+            `✨ Successfully loaded ${fetchedProgress.length} progress records.`
+          );
+          setProgressData(fetchedProgress);
           setError("");
         } else {
+          // If data is empty but API call succeeded, it's not a true error, just an empty state.
           setProgressData([]);
-          setError(response.data?.message || "No progress data found");
+          setError(""); // Clear error to allow "No Progress Yet" state to show
         }
       } catch (err) {
-        console.error("❌ Error fetching progress:", err);
+        console.error(
+          "❌ A true network or API failure occurred:",
+          err.response?.data || err.message || err
+        );
         setProgressData([]);
-        setError(err.response?.data?.message || "Failed to load progress data");
+
+        // This handles cases where Axios throws an error for non-2xx statuses
+        const errorMessage =
+          err.response?.data?.message ||
+          err.message ||
+          "Failed to load progress data due to network error.";
+        setError(errorMessage);
       } finally {
         setLoading(false);
       }
+      // ...
     };
 
     fetchData();
   }, [user?._id]);
 
-  // CRITICAL FIX: Safely transform data for charts
+  // CRITICAL FIX: Added diagnostic logging for date matching
   const getChartData = () => {
     const daysOfWeek = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
     const today = new Date();
@@ -84,13 +130,15 @@ const Dashboard = () => {
       const date = new Date(today);
       date.setDate(date.getDate() - i);
       const dayName = daysOfWeek[date.getDay()];
-      const dateString = date.toISOString().split("T")[0];
+      const dateString = date.toISOString().split("T")[0]; // Expected format: YYYY-MM-DD
 
-      // CRITICAL FIX: Safely find progress with proper date matching
       const dayProgress = progressData.find((progress) => {
         if (!progress || !progress.day) return false;
 
-        // Match by 'day' field (as stored in DB)
+        // DIAGNOSTIC LOG: Uncomment this line to see the comparison
+        // console.log(`Comparing DB Day: ${progress.day} (type: ${typeof progress.day}) with Target Day: ${dateString}`);
+
+        // Match by 'day' field (must be YYYY-MM-DD string)
         return progress.day === dateString;
       });
 
@@ -106,12 +154,12 @@ const Dashboard = () => {
     return chartData;
   };
 
-  // CRITICAL FIX: Wrap in try-catch to prevent crashes
   let chartData = [];
   try {
     chartData = getChartData();
   } catch (err) {
     console.error("❌ Error generating chart data:", err);
+    // Fallback to safe zero data
     chartData = Array(7).fill({
       day: "",
       questions: 0,
@@ -181,7 +229,7 @@ const Dashboard = () => {
     );
   }
 
-  // CRITICAL FIX: Check if user exists before rendering
+  // Logged out state
   if (!user) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 flex items-center justify-center">
@@ -251,7 +299,7 @@ const Dashboard = () => {
       {error && (
         <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="bg-red-500/20 border border-red-500/50 rounded-lg p-4">
-            <p className="text-red-300">{error}</p>
+            <p className="text-red-300 font-medium">⚠️ Error: {error}</p>
           </div>
         </div>
       )}
@@ -405,7 +453,7 @@ const Dashboard = () => {
           </div>
         </div>
 
-        {/* Empty state */}
+        {/* Empty state (Only show if progressData is empty AND there's no error) */}
         {progressData.length === 0 && !loading && !error && (
           <div className="text-center py-12 mt-8">
             <div className="w-24 h-24 bg-gray-700 rounded-full flex items-center justify-center mx-auto mb-4">

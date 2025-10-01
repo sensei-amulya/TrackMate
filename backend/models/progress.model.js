@@ -31,6 +31,4 @@ const progressSchema = new mongoose.Schema(
 // Create compound index to prevent duplicate entries for same user and day
 progressSchema.index({ userId: 1, day: 1 }, { unique: true });
 
-const Progress = mongoose.model("Progress", progressSchema);
-
-export default Progress;
+export default mongoose.model("Progress", progressSchema);

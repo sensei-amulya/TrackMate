@@ -25,7 +25,7 @@ app.use(cookieParser());
 // Routes
 app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoute);
-app.use("/api", progressRoutes);
+app.use("/api/progress", progressRoutes);
 // Health check routes
 app.get("/", (req, res) => {
   res.json("Progress Tracker API is running...");

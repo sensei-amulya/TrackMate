@@ -27,7 +27,7 @@ export const AuthProvider = ({ children }) => {
 
     const checkAuth = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/users/me", {
+        const res = await axios.get("http://localhost:5000/api/auth/me", {
           withCredentials: true,
           timeout: 5000,
         });
@@ -48,8 +48,8 @@ export const AuthProvider = ({ children }) => {
         );
         setUser(null);
       } finally {
-        setLoading(false);
         setAuthInitialized(true);
+        setLoading(false);
         console.log("🏁 Auth check complete");
       }
     };
@@ -63,7 +63,7 @@ export const AuthProvider = ({ children }) => {
 
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/users/login",
+        "http://localhost:5000/api/auth/login",
         loginData,
         { withCredentials: true, timeout: 10000 }
       );
@@ -102,7 +102,7 @@ export const AuthProvider = ({ children }) => {
 
     try {
       await axios.post(
-        "http://localhost:5000/api/users/logout",
+        "http://localhost:5000/api/auth/logout",
         {},
         {
           withCredentials: true,

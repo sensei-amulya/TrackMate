@@ -1,5 +1,5 @@
 import React from "react";
-
+import { Link } from "react-router-dom";
 const Home = () => {
   const features = [
     "Track goals across multiple categories",
@@ -73,8 +73,8 @@ const Home = () => {
       <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-b from-transparent via-transparent to-gray-900/50"></div>
 
       {/* Main content */}
-      <div className="relative z-10 flex items-center justify-center py-20 px-6 pb-0">
-        <div className="max-w-4xl mx-auto text-center">
+      <div className="relative z-10 flex items-center justify-center py-6 px-6 pb-0">
+        <div className="max-w-4xl mx-auto text-center py-4">
           {/* Welcome section */}
           <div className="mb-12">
             <div className="inline-flex items-center space-x-2 bg-blue-600/20 border border-blue-500/30 rounded-full px-6 py-2 mb-6">
@@ -115,29 +115,15 @@ const Home = () => {
 
           {/* Action buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-            <button className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl shadow-blue-500/25">
-              Get Started Free
-            </button>
-            <button className="border border-white/20 text-white px-8 py-4 rounded-xl font-semibold text-lg hover:bg-white/10 transition-all duration-300 backdrop-blur-sm">
-              Watch Demo
-            </button>
+            <Link
+              to="/dashboard" // CRITICAL FIX: Use Link component and specify the destination route
+              className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white px-8 py-4 rounded-xl font-semibold text-lg transition-all duration-300 transform hover:scale-105 hover:shadow-2xl shadow-blue-500/25 inline-block" // Added inline-block to make Link behave like button
+            >
+              View Dashboard
+            </Link>
           </div>
 
           {/* Stats section */}
-          <div className="mt-16 mb-20 grid grid-cols-1 md:grid-cols-3 gap-8 max-w-2xl mx-auto">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-white mb-2">10K+</div>
-              <div className="text-gray-400">Active Users</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-white mb-2">50M+</div>
-              <div className="text-gray-400">Goals Tracked</div>
-            </div>
-            <div className="text-center">
-              <div className="text-3xl font-bold text-white mb-2">95%</div>
-              <div className="text-gray-400">Success Rate</div>
-            </div>
-          </div>
         </div>
       </div>
     </div>

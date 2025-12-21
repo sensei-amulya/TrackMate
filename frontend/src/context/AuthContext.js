@@ -27,7 +27,7 @@ export const AuthProvider = ({ children }) => {
 
     const checkAuth = async () => {
       try {
-        const res = await axios.get("http://localhost:5000/api/auth/me", {
+        const res = await axios.get("https://trackmate-backend-prqa.onrender.com/api/auth/me", {
           withCredentials: true,
           timeout: 5000,
         });
@@ -63,7 +63,7 @@ export const AuthProvider = ({ children }) => {
 
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/auth/login",
+        "https://trackmate-backend-prqa.onrender.com/api/auth/login",
         loginData,
         { withCredentials: true, timeout: 10000 }
       );
@@ -102,7 +102,7 @@ export const AuthProvider = ({ children }) => {
 
     try {
       await axios.post(
-        "http://localhost:5000/api/auth/logout",
+        "https://trackmate-backend-prqa.onrender.com/api/auth/logout",
         {},
         {
           withCredentials: true,
@@ -150,3 +150,4 @@ export const AuthProvider = ({ children }) => {
     <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>
   );
 };
+

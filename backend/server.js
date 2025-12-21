@@ -15,7 +15,7 @@ const app = express();
 // Middleware setup (order is important!)
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: "https://trackmate-frontend-s0ce.onrender.com",
     credentials: true,
   })
 );
@@ -43,3 +43,4 @@ connectDB()
     console.error("Failed to connect to the database:", error);
     process.exit(1);
   });
+

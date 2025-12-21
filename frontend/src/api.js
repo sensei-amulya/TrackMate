@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Create axios instance with optimized defaults
 const API = axios.create({
-  baseURL: "http://localhost:5000/api/progress", // VERIFIED: Endpoint is progress
+  baseURL: "https://trackmate-backend-prqa.onrender.com/api/progress", // VERIFIED: Endpoint is progress
   timeout: 10000, // 10 second timeout
   headers: {
     "Content-Type": "application/json",
@@ -77,3 +77,4 @@ export const preloadProgressData = async (userId) => {
 };
 
 export default API;
+

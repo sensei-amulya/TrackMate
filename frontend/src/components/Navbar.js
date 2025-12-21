@@ -8,8 +8,7 @@ const Navbar = () => {
   const [open, setOpen] = useState(false);
   const dropdownRef = useRef(null);
 
-  console.log("Navbar user object:", user);
-  console.log("User keys:", user ? Object.keys(user) : "No user");
+  
 
   // Close dropdown on outside click
   useEffect(() => {
@@ -31,7 +30,7 @@ const Navbar = () => {
 
   const displayName = getDisplayName(user);
 
-  console.log("Display name:", displayName);
+ 
 
   return (
     <nav

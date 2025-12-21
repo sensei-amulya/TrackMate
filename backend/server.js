@@ -11,11 +11,15 @@ import progressRoutes from "./routes/progress.routes.js";
 dotenv.config();
 
 const app = express();
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://trackmate-frontend-s0ce.onrender.com"
+];
 
 // Middleware setup (order is important!)
 app.use(
   cors({
-    origin: "https://trackmate-frontend-s0ce.onrender.com",
+    origin: allowedOrigins,
     credentials: true,
   })
 );

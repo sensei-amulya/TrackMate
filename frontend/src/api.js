@@ -2,7 +2,7 @@ import axios from "axios";
 
 // Create axios instance with optimized defaults
 const API = axios.create({
-  baseURL: "https://trackmate-backend-prqa.onrender.com/api/progress", // VERIFIED: Endpoint is progress
+  baseURL: `${process.env.REACT_APP_API_URL}/api/progress`, // VERIFIED: Endpoint is progress
   timeout: 10000, // 10 second timeout
   headers: {
     "Content-Type": "application/json",

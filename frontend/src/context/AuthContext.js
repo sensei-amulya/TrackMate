@@ -1,7 +1,7 @@
 import React, { createContext, useState, useEffect } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
-
+const API_URL = process.env.REACT_APP_API_URL;
 export const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
@@ -27,7 +27,7 @@ export const AuthProvider = ({ children }) => {
 
     const checkAuth = async () => {
       try {
-        const res = await axios.get("https://trackmate-backend-prqa.onrender.com/api/auth/me", {
+        const res = await axios.get(`${API_URL}/api/auth/me`, {
           withCredentials: true,
           timeout: 5000,
         });
@@ -63,7 +63,7 @@ export const AuthProvider = ({ children }) => {
 
     try {
       const res = await axios.post(
-        "https://trackmate-backend-prqa.onrender.com/api/auth/login",
+        `${API_URL}/api/auth/login`,
         loginData,
         { withCredentials: true, timeout: 10000 }
       );
@@ -102,7 +102,7 @@ export const AuthProvider = ({ children }) => {
 
     try {
       await axios.post(
-        "https://trackmate-backend-prqa.onrender.com/api/auth/logout",
+        `${API_URL}/api/auth/logout`,
         {},
         {
           withCredentials: true,

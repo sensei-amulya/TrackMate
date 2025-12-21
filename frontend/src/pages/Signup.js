@@ -2,7 +2,7 @@ import React, { useState, useContext } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 import { AuthContext } from "../context/AuthContext";
-
+const API_URL = process.env.REACT_APP_API_URL;
 const Signup = () => {
   const [form, setForm] = useState({ username: "", email: "", password: "" });
   const [message, setMessage] = useState("");
@@ -22,7 +22,7 @@ const Signup = () => {
     try {
       // Correct API endpoint is /register, not /signup
       const res = await axios.post(
-        "https://trackmate-backend-prqa.onrender.com/api/auth/register",
+        `${API_URL}/api/auth/register`,
         form,
         {
           withCredentials: true,

@@ -22,7 +22,7 @@ const Signup = () => {
     try {
       // Correct API endpoint is /register, not /signup
       const res = await axios.post(
-        "http://localhost:5000/api/auth/register",
+        "https://trackmate-backend-prqa.onrender.com/api/auth/register",
         form,
         {
           withCredentials: true,
@@ -201,3 +201,4 @@ const Signup = () => {
 };
 
 export default Signup;
+
